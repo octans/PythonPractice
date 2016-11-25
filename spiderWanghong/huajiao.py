@@ -104,6 +104,27 @@ def getMysqlConn():
     conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
     return conn
 
+
+# get user counts
+def getUserCount():
+    conn = getMysqlConn()
+    cur = conn.cursor()
+    cur.execute("USE wanghong")
+    cur.execute("set names utf8mb4")
+    cur.execute("SELECT count(FUserId) FROM Tbl_Huajiao_User")
+    ret = cur.fetchone()
+    return ret[0]
+
+# get live counts
+def getLiveCount():
+    conn = getMysqlConn()
+    cur = conn.cursor()
+    cur.execute("USE wanghong")
+    cur.execute("set names utf8mb4")
+    cur.execute("SELECT count(FLiveId) FROM Tbl_Huajiao_Live")
+    ret = cur.fetchone()
+    return ret[0]
+
 # select user ids
 def selectUserIds(num):
     conn = getMysqlConn()
@@ -175,8 +196,12 @@ def main(argv):
         spiderUserDatas()
     elif (argv[1] == 'spiderUserLives'):
         spiderUserLives()
+    elif (argv[1] == 'getUserCount'):
+        print(getUserCount())
+    elif (argv[1] == 'getLiveCount'):
+        print(getLiveCount())
     else:
-        print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives]")
+        print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives|getUserCount|getLiveCount]")
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -100,71 +100,22 @@ def getUserLives(userId):
 def getTimestamp():
     return (time.mktime(datetime.datetime.now().timetuple()))
 
-def getMysqlConn():
-    conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
-    return conn
-
-
-# get user counts
-def getUserCount():
-    conn = getMysqlConn()
-    cur = conn.cursor()
-    cur.execute("USE wanghong")
-    cur.execute("set names utf8mb4")
-    cur.execute("SELECT count(FUserId) FROM Tbl_Huajiao_User")
-    ret = cur.fetchone()
-    return ret[0]
-
-# get live counts
-def getLiveCount():
-    conn = getMysqlConn()
-    cur = conn.cursor()
-    cur.execute("USE wanghong")
-    cur.execute("set names utf8mb4")
-    cur.execute("SELECT count(FLiveId) FROM Tbl_Huajiao_Live")
-    ret = cur.fetchone()
-    return ret[0]
-
-# select user ids
-def selectUserIds(num):
-    conn = getMysqlConn()
-    cur = conn.cursor()
-    try:
-        cur.execute("USE wanghong")
-        cur.execute("set names utf8mb4")
-        cur.execute("SELECT FUserId FROM Tbl_Huajiao_User ORDER BY FScrapedTime DESC LIMIT " + str(num))
-        ret = cur.fetchall()
-        return ret
-    except:
-        print("selectUserIds except")
-        return 0
-
-# update user data
-def replaceUserData(data):
-    conn = getMysqlConn()
-    cur = conn.cursor()
-    try:
-        cur.execute("USE wanghong")
-        cur.execute("set names utf8mb4")
-        cur.execute("REPLACE INTO Tbl_Huajiao_User(FUserId,FUserName, FLevel, FFollow,FFollowed,FSupported,FExperience,FAvatar,FScrapedTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)", (int(data['FUserId']), data['FUserName'],int(data['FLevel']),int(data['FFollow']),int(data['FFollowed']), int(data['FSupported']), int(data['FExperience']), data['FAvatar'],getNowTime())
-        )
-        conn.commit()
-    except pymysql.err.InternalError as e:
-        print(e)
-    except:
-        print("replaceUserData except, userId=" + str(data['FUserId']))
-
 # update user live data
 def replaceUserLive(data):
-    conn = getMysqlConn()
-    cur = conn.cursor()
     try:
-        print(data)
-        cur.execute("USE wanghong")
-        cur.execute("set names utf8mb4")
-        cur.execute("REPLACE INTO Tbl_Huajiao_Live(FLiveId,FUserId,FWatches,FPraises,FReposts,FReplies,FPublishTimestamp,FTitle,FImage,FLocation,FScrapedTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s )", (int(data['relateid']),int(data['FUserId']), int(data['watches']),int(data['praises']),int(data['reposts']),int(data['replies']),int(data['publishtimestamp']),data['title'], data['image'], data['location'],getNowTime())
-        )
-        conn.commit()
+        kvs = dict()
+        kvs['FLiveId'] = int(data['relateid'])
+        kvs['FUserId'] = int(data['FUserId'])
+        kvs['FWatches'] = int(data['watches'])
+        kvs['FPraises'] = int(data['praises'])
+        kvs['FReposts'] = int(data['reposts'])
+        kvs['FReplies'] = int(data['replies'])
+        kvs['FPublishTimestamp'] = int(data['publishtimestamp'])
+        kvs['FTitle'] = data['title']
+        kvs['FImage'] = data['image']
+        kvs['FLocation'] = data['location']
+        kvs['FScrapedTime'] = getNowTime()
+        Live().insert(kvs, 1)
     except pymysql.err.InternalError as e:
         print(e)
 
@@ -174,12 +125,12 @@ def spiderUserDatas():
         userId = getUserId(liveId)
         userData = getUserData(userId)
         if userData:
-            replaceUserData(userData)
+            User().insert(userData, 1)
     return 1
 
 # spider user lives
 def spiderUserLives():
-    userIds = selectUserIds(100)
+    userIds = User().select("FUserId").limit(100).fetchAll()
     for userId in userIds:
         liveDatas = getUserLives(userId[0])
         for liveData in liveDatas:
@@ -187,6 +138,99 @@ def spiderUserLives():
             replaceUserLive(liveData['feed'])
 
     return 1
+
+class Mysql():
+    def __new__(cls):
+        cls.connect()
+        return cls
+    def __del__(cls):
+        cls.close()
+
+    @classmethod
+    def connect(cls):
+        cls.conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
+        cls.cursor = cls.conn.cursor()
+        cls.cursor.execute("set names utf8mb4")
+
+    @classmethod
+    def close(cls):
+        cls.cursor.close()
+        cls.conn.close()
+
+    @classmethod
+    def query(cls, sql):
+        cls.cursor.execute(sql)
+        return cls
+
+class Model():
+    @classmethod
+    def select(cls, selectStr):
+        if selectStr.find(",") == -1:
+            sqlFields = selectStr
+        else:
+            fields = list()
+            for f in selectStr.split(","):
+                fields.append('`' + f.strip() + '`')
+            sqlFields = ",".join(fields)
+        cls.sql = "SELECT " + sqlFields + " FROM " + cls.tbl
+        return cls
+
+    @classmethod
+    def where(cls, string):
+        cls.sql = cls.sql + " WHERE " + string
+        return cls
+
+    @classmethod
+    def orderBy(cls, string):
+        cls.sql = cls.sql + " ORDER BY " + string
+        return cls
+
+    @classmethod
+    def limit(cls, num):
+        cls.sql = cls.sql + " LIMIT " + str(num)
+        return cls
+
+    @classmethod
+    def fetchAll(cls):
+        return Mysql().query(cls.sql).cursor.fetchall()
+
+    @classmethod
+    def fetchOne(cls):
+        return Mysql().query(cls.sql).cursor.fetchone()
+
+    @classmethod
+    def insert(cls, data, replace=None):
+        fields = list()
+        for a in data.keys():
+            fields.append('`' + a + '`')
+        sqlFields = ",".join(fields)
+
+        values = list()
+        for v in data.values():
+            v = "\"" + v + "\"" if type(v) is type("a") else str(v)
+            values.append(v)
+        sqlValues = ",".join(values)
+
+        action = "INSERT" if replace is None else "REPLACE"
+        sql = action + " INTO " + cls.tbl + " (" + sqlFields + ") VALUES (" + sqlValues + ")"
+        print(sql)
+        Mysql().query(sql).conn.commit()
+
+    @classmethod
+    def update(cls, where, **data):
+        pass
+
+    @classmethod
+    def delete(cls, where):
+        sql = "DELETE FROM " + cls.tbl + " WHERE " + where
+        Mysql().query(sql).conn.commit()
+
+# ORM User -> Tbl_Huajiao_User
+class User(Model):
+    tbl = "Tbl_Huajiao_User"
+
+class Live(Model):
+    tbl = "Tbl_Huajiao_Live"
 
 def main(argv):
     if len(argv) < 2:
@@ -197,13 +241,14 @@ def main(argv):
     elif (argv[1] == 'spiderUserLives'):
         spiderUserLives()
     elif (argv[1] == 'getUserCount'):
-        print(getUserCount())
+        count = User().select("count(\"FUserId\")").fetchOne()
+        print(count[0])
     elif (argv[1] == 'getLiveCount'):
-        print(getLiveCount())
+        count = Live().select("count(\"FLiveId\")").fetchOne()
+        print(count[0])
     else:
         print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives|getUserCount|getLiveCount]")
 
 if __name__ == '__main__':
     main(sys.argv)
-
 

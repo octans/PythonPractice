@@ -1,4 +1,4 @@
-#DROP DATABASE IF EXISTS `wanghong`;
+DROP DATABASE IF EXISTS `wanghong`;
 CREATE DATABASE `wanghong` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
 USE `wanghong`;
 set names utf8mb4;
@@ -32,3 +32,28 @@ CREATE TABLE `Tbl_Huajiao_User` (
     `FScrapedTime` timestamp NOT NULL COMMENT '爬虫时间',
     PRIMARY KEY (`FUserId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+# 沃米优选主播表
+#DROP TABLE IF EXISTS `Tbl_WMYX_Actor`;
+CREATE TABLE `Tbl_WMYX_Actor` (
+    `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '沃米优选唯一id',
+    `user_id` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '平台id',
+    `platform` TINYINT NOT NULL DEFAULT 0 COMMENT '直播平台',
+    `nickname` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '昵称',
+    `followed` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '粉丝数',
+    `avg_watched` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '平均观看人数',
+    `price_dict` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '推广方式和价格',
+    `type_label` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '类型标签',
+    `geo_range` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '推广覆盖地域',
+    `sex` TINYINT NOT NULL DEFAULT 0 COMMENT '性别',
+    `avatar` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '头像',
+    `min_price` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'min_price',
+    `max_price` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'max_price',
+    `address` VARCHAR(30) NOT NULL DEFAULT '' COMMENT 'address',
+    `scraped_time` timestamp NOT NULL COMMENT '爬虫更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `INDEX_uuid` (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+

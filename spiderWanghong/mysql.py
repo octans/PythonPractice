@@ -1,5 +1,6 @@
 import pymysql
 
+
 def addslashes(s):
     try:
         d = {'"': '\\"', "'": "\\'", "\0": "\\\0", "\\": "\\\\"}
@@ -7,10 +8,12 @@ def addslashes(s):
     except:
         return s
 
+
 class Mysql():
     def __new__(cls, **params):
         cls.connect(**params)
         return cls
+
     def __del__(cls):
         cls.close()
 
@@ -32,41 +35,37 @@ class Mysql():
 
 
 class Model:
+    sql = ''
 
-    @classmethod
-    def select(cls, selectStr):
-        if selectStr.find(",") == -1:
-            sqlFields = selectStr
+    def select(self, select_str):
+        if select_str.find(",") == -1:
+            select_str = select_str
         else:
             fields = list()
-            for f in selectStr.split(","):
+            for f in select_str.split(","):
                 fields.append('`' + f.strip() + '`')
-            sqlFields = ",".join(fields)
-        cls.sql = "SELECT " + sqlFields + " FROM " + cls.tbl
-        return cls
+                select_str = ",".join(fields)
+        self.sql = "SELECT " + select_str + " FROM " + self.tbl
 
-    @classmethod
-    def where(cls, string):
-        cls.sql = cls.sql + " WHERE " + string
-        return cls
+        return self
 
-    @classmethod
-    def orderBy(cls, string):
-        cls.sql = cls.sql + " ORDER BY " + string
-        return cls
+    def where(self, string):
+        self.sql = self.sql + " WHERE " + string
+        return self
 
-    @classmethod
-    def limit(cls, num):
-        cls.sql = cls.sql + " LIMIT " + str(num)
-        return cls
+    def order_by(self, string):
+        self.sql = self.sql + " ORDER BY " + string
+        return self
 
-    @classmethod
-    def fetchAll(cls):
-        return Mysql().query(cls.sql).cursor.fetchall()
+    def limit(self, num):
+        self.sql = self.sql + " LIMIT " + str(num)
+        return self
 
-    @classmethod
-    def fetchOne(cls):
-        return Mysql().query(cls.sql).cursor.fetchone()
+    def fetch_all(self):
+        return self.conn.query(self.sql).cursor.fetchall()
+
+    def fetch_one(self):
+        return self.conn.query(self.sql).cursor.fetchone()
 
     def insert(self, data, replace=None):
         fields = list()
@@ -85,11 +84,9 @@ class Model:
         sql = action + " INTO " + self.tbl + " (" + sqlFields + ") VALUES (" + sqlValues + ")"
         self.conn.query(sql).conn.commit()
 
-    @classmethod
-    def update(cls, where, **data):
+    def update(self, where, **data):
         pass
 
-    @classmethod
-    def delete(cls, where):
-        sql = "DELETE FROM " + cls.tbl + " WHERE " + where
+    def delete(self, where):
+        sql = "DELETE FROM " + self.tbl + " WHERE " + where
         Mysql().query(sql).conn.commit()

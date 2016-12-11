@@ -6,7 +6,8 @@ import json
 import pymysql
 import time
 import datetime
-#import traceback
+from mysql import Model
+from mysql import Mysql
 
 
 def getNowTime():
@@ -41,6 +42,7 @@ def getUserId(liveId):
 
 # get user data from user page
 def getUserData(userId):
+    print('getUserData: userId=' + userId )
     html = urlopen("http://www.huajiao.com/user/" + str(userId))
     bsObj = BeautifulSoup(html, "html.parser")
     data = dict()
@@ -50,7 +52,6 @@ def getUserData(userId):
         userId = userInfoObj.find("p", {"class":"user_id"}).get_text()
         data['FUserId'] = re.findall("[0-9]+", userId)[0]
         tmp = userInfoObj.h3.get_text('|', strip=True).split('|')
-        #print(tmp[0].encode("utf-8"))
         data['FUserName'] = tmp[0]
         data['FLevel'] = tmp[1]
         tmp = userInfoObj.find("ul", {"class":"clearfix"}).get_text('|', strip=True).split('|')
@@ -58,22 +59,6 @@ def getUserData(userId):
         data['FFollowed'] = tmp[2]
         data['FSupported'] = tmp[4]
         data['FExperience'] = tmp[6]
-        '''
-        metrics = userInfoObj.find("ul", {"class":"clearfix"}).findAll("li")
-        i = 0
-        for li in metrics:
-            if i == 0:
-                data['FFollow'] = li.p.get_text()
-            elif i == 1:
-                data['FFollowed'] = li.p.get_text()
-            elif i == 2:
-                data['FSupported'] = li.p.get_text()
-            elif i == 3:
-                data['FExperience'] = li.p.get_text()
-            else:
-                break;
-            i += 1
-        '''
 
         return data
     except AttributeError:
@@ -83,6 +68,7 @@ def getUserData(userId):
 
 # get user history lives
 def getUserLives(userId):
+    print('getUserLives: userId=' + str(userId))
     try:
         url = "http://webh.huajiao.com/User/getUserFeeds?fmt=json&uid=" + str(userId)
         html = urlopen(url).read().decode('utf-8')
@@ -124,13 +110,18 @@ def spiderUserDatas():
     for liveId in getLiveIdsFromRecommendPage():
         userId = getUserId(liveId)
         userData = getUserData(userId)
-        if userData:
-            User().insert(userData, 1)
+        try:
+            if userData:
+                User().insert(userData, 1)
+        except pymysql.err.InternalError as e:
+            print(e)
+            print(userData)
+
     return 1
 
 # spider user lives
 def spiderUserLives():
-    userIds = User().select("FUserId").limit(100).fetchAll()
+    userIds = User().select("FUserId").limit(100).fetch_all()
     for userId in userIds:
         liveDatas = getUserLives(userId[0])
         for liveData in liveDatas:
@@ -139,112 +130,32 @@ def spiderUserLives():
 
     return 1
 
-class Mysql():
-    def __new__(cls):
-        cls.connect()
-        return cls
-    def __del__(cls):
-        cls.close()
 
-    @classmethod
-    def connect(cls):
-        cls.conn = pymysql.connect(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
-        cls.cursor = cls.conn.cursor()
-        cls.cursor.execute("set names utf8mb4")
+class BoseModel(Model):
+    conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
 
-    @classmethod
-    def close(cls):
-        cls.cursor.close()
-        cls.conn.close()
 
-    @classmethod
-    def query(cls, sql):
-        cls.cursor.execute(sql)
-        return cls
-
-class Model():
-    @classmethod
-    def select(cls, selectStr):
-        if selectStr.find(",") == -1:
-            sqlFields = selectStr
-        else:
-            fields = list()
-            for f in selectStr.split(","):
-                fields.append('`' + f.strip() + '`')
-            sqlFields = ",".join(fields)
-        cls.sql = "SELECT " + sqlFields + " FROM " + cls.tbl
-        return cls
-
-    @classmethod
-    def where(cls, string):
-        cls.sql = cls.sql + " WHERE " + string
-        return cls
-
-    @classmethod
-    def orderBy(cls, string):
-        cls.sql = cls.sql + " ORDER BY " + string
-        return cls
-
-    @classmethod
-    def limit(cls, num):
-        cls.sql = cls.sql + " LIMIT " + str(num)
-        return cls
-
-    @classmethod
-    def fetchAll(cls):
-        return Mysql().query(cls.sql).cursor.fetchall()
-
-    @classmethod
-    def fetchOne(cls):
-        return Mysql().query(cls.sql).cursor.fetchone()
-
-    @classmethod
-    def insert(cls, data, replace=None):
-        fields = list()
-        for a in data.keys():
-            fields.append('`' + a + '`')
-        sqlFields = ",".join(fields)
-
-        values = list()
-        for v in data.values():
-            v = "\"" + v + "\"" if type(v) is type("a") else str(v)
-            values.append(v)
-        sqlValues = ",".join(values)
-
-        action = "INSERT" if replace is None else "REPLACE"
-        sql = action + " INTO " + cls.tbl + " (" + sqlFields + ") VALUES (" + sqlValues + ")"
-        print(sql)
-        Mysql().query(sql).conn.commit()
-
-    @classmethod
-    def update(cls, where, **data):
-        pass
-
-    @classmethod
-    def delete(cls, where):
-        sql = "DELETE FROM " + cls.tbl + " WHERE " + where
-        Mysql().query(sql).conn.commit()
-
-# ORM User -> Tbl_Huajiao_User
-class User(Model):
+class User(BoseModel):
     tbl = "Tbl_Huajiao_User"
 
-class Live(Model):
+
+class Live(BoseModel):
     tbl = "Tbl_Huajiao_Live"
+
 
 def main(argv):
     if len(argv) < 2:
         print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives]")
         exit()
-    if (argv[1] == 'spiderUserDatas'):
+    if argv[1] == 'spiderUserDatas':
         spiderUserDatas()
-    elif (argv[1] == 'spiderUserLives'):
+    elif argv[1] == 'spiderUserLives':
         spiderUserLives()
-    elif (argv[1] == 'getUserCount'):
-        count = User().select("count(\"FUserId\")").fetchOne()
+    elif argv[1] == 'getUserCount':
+        count = User().select("count(\"FUserId\")").fetch_one()
         print(count[0])
-    elif (argv[1] == 'getLiveCount'):
-        count = Live().select("count(\"FLiveId\")").fetchOne()
+    elif argv[1] == 'getLiveCount':
+        count = Live().select("count(\"FLiveId\")").fetch_one()
         print(count[0])
     else:
         print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives|getUserCount|getLiveCount]")

@@ -4,10 +4,11 @@ import os
 import re
 import json
 import sys
+import inspect
 from mysql import Model
 from mysql import Mysql
 
-
+"""
 class Cache():
     '''
     将_csrf的值存储到文件
@@ -29,6 +30,7 @@ class Cache():
     def __del__(self):
         if self.fileObj != '':
             self.fileObj.close()
+"""
 
 
 class Website:
@@ -36,18 +38,33 @@ class Website:
 
     htmlParser = BeautifulSoup
 
+    jsonParser = json
+
     headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/'
                       '54.0.2840.98 Safari/537.36'
     }
 
-    def get(self, url):
+    def get(self, url, params=None):
+        if params is None:
+            params = {}
+        return self.session.get(url, params=params, headers=self.headers)
+
+    def get_html(self, url, params=None):
         """
-        GET请求
+        GET请求, 用于网站返回html时
+        """
+        r = self.get(url, params)
+        return self.htmlParser(r.text, 'html.parser')
+
+    def get_json(self, url, params=None):
+        """
+        GET请求, 用于网站返回json时
         """
 
-        r = self.session.get(url, headers=self.headers)
-        return self.htmlParser(r.text, "html.parser")
+        r = self.get(url, params)
+
+        return self.jsonParser.loads(r.text)
 
     def post_url_encoded(self, url, params):
         """
@@ -68,6 +85,153 @@ class Website:
         return self.htmlParser(r.text, "html.parser")
 
 
+class YiXia(Website):
+    def parse_user_page(self, uid):
+        """
+        访问主播页面，也是视频列表页，从该页面获取到suid和主播个人信息
+        """
+
+        print(self.__class__.__name__ + ':parse_user_page, uid=' + uid)
+        user = dict()
+        user['uid'] = uid
+        url = 'http://www.yixia.com/u/' + uid
+        bs = self.get_html(url)
+
+        div = bs.find('div', {'class': 'box1'})
+        user['nickname'] = div.h1.a.get_text(strip=True)  # 昵称
+
+        stat = div.ol.get_text(strip=True)
+        stat = re.split('关注\||粉丝', stat)
+        user['follow'] = stat[0].strip()  # 关注数
+        user['followed'] = stat[1].strip()  # 粉丝数
+
+        user['avatar'] = bs.find('div', {'class': 'nav_div1'}).a.img.attrs['src']  # 头像
+
+        user['suid'] = bs.find('div', {'class': 'nav_div1'}).find('button').attrs['suid']  # suid
+
+        tmp = bs.find('div', {'class': 'nav_div3'}).get_text('@#$%', strip=True).split('@#$%')
+        user['location'] = tmp[0]
+        user['descr'] = tmp[1]
+
+        tmp = bs.find('div', {'class': 'n_b_con'}).get_text(strip=True)
+        tmp = re.split('视频|转发|赞', tmp)
+        user['video_count'] = tmp[0]  # 视频数
+        user['relayed'] = tmp[1]  # 转发数
+        user['praised'] = tmp[2]  # 被赞数
+
+        return user
+
+    def get_video_list(self, suid, page=1):
+        """
+        AJAX请求视频列表
+        """
+
+        url = 'http://www.yixia.com/gu/u'
+        payload = {
+            'page': page,
+            'suid': suid,
+            'fen_type': 'channel'
+        }
+        json_obj = self.get_json(url, params=payload)
+        msg = json_obj['msg']
+        msg = BeautifulSoup(msg, 'html.parser')
+
+        '''
+        解析视频标题
+        '''
+        titles = list()
+        ps = msg.findAll('p')
+        for p in ps:
+            titles.append(p.get_text(strip=True))  # 视频标题
+
+        '''
+        解析视频赞和评论数
+        '''
+        stats = list()
+        divs = msg.findAll('div', {'class': 'list clearfix'})
+        for div in divs:
+            tmp = div.ol.get_text(strip=True)
+            tmp = re.split('赞|\|评论', tmp)
+            stats.append(tmp)
+
+        '''
+        解析视频其他数据
+        '''
+        videos = list()
+        divs = msg.findAll('div', {'class': 'D_video'})
+        for (k, div) in enumerate(divs):
+            video = dict()
+            video['scid'] = div.attrs['data-scid']
+            video['img'] = div.find('div', {'class': 'video_img'}).img.attrs['src']  # 视频封面
+            video['flash'] = div.find('div', {'class': 'video_flash'}).attrs['va']  # 视频flash地址
+            intro = div.find('div', {'class': 'introduction'})
+            head_area = intro.find('div', {'class': 'D_head_name'}).h2
+            video['detail_page'] = head_area.a.attrs['href']  # 视频详情地址
+            video['pub_date'] = head_area.b.get_text(strip=True)  # 视频日期
+            head_area.a.decompose()
+            tmp = head_area.get_text(strip=True)
+            tmp = re.split('观看', tmp)
+
+            def format_num(string):
+
+                # 判断是否有逗号，比如8,189
+                try:
+                    index = string.index(',')
+                    string = string.replace(',', '')
+                except ValueError:
+                    string = string
+
+                # 判断是否有小数点
+                try:
+                    index = string.index('.')
+                    is_float = True
+                except ValueError:
+                    is_float = False
+
+                # 是否有万字
+                t = string[len(string)-1]
+                if t == '万':
+                    num = string.replace('万', '')
+                    if is_float:
+                        ret = int(float(num) * 10000)
+                    else:
+                        ret = int(num) * 10000
+                else:
+                    if is_float:
+                        ret = float(string)
+                    else:
+                        ret = int(string)
+
+                return ret
+
+            try:
+                video['watched'] = format_num(tmp[0])  #观看量
+                video['title'] = titles[k]  # 标题
+                video['praised'] = format_num(stats[k][1])  # 赞
+                video['discussed'] = format_num((stats[k][2]))  # 评论
+            except ValueError as e:
+                print(head_area)
+                print(e)
+                print(video)
+                exit()
+            videos.append(video)
+
+        return videos
+
+    def spider_videos(self, suid, video_count):
+        page = 1
+        current = 0
+        tbl_video = YiXiaVideo()
+        while current < int(video_count):
+            print('spider_videos: suid=' + suid + ', page=' + str(page))
+            videos = self.get_video_list(suid, page)
+            for video in videos:
+                tbl_video.insert(video, replace=True)
+            current += len(videos)
+            page += 1
+        return True
+
+
 class WoMiYouXuan(Website):
     """
     网红数据分析平台：沃米优选 http://www.51wom.com/
@@ -85,7 +249,7 @@ class WoMiYouXuan(Website):
         """
 
         url = 'http://video.51wom.com/'
-        html = self.get(url)
+        html = self.get_html(url)
         self.csrf = html.find('meta', {'name': 'csrf-token'}).attrs['content']
 
     def parse_actor_list_page(self, page=1):
@@ -139,7 +303,7 @@ class WoMiYouXuan(Website):
             index_tmp = sex.find('.png')
             actor_dict['sex'] = sex[index_tmp - 1:index_tmp]  # 性别：1-男，2-女
             actor_dict['geo_range'] = tds[1].find('span', {'class': 'name synopsis'}).get_text(strip=True)  # 地域范围
-            actor_dict['type_label'] = tds[1].li.get_text(strip=True)  # 标签
+            actor_dict['type_label'] = tds[1].li.get_text(strip=True)  # 资源分类
 
             platform = tds[2].img.attrs['src']
             index_tmp = platform.find('.png')
@@ -176,9 +340,7 @@ class WoMiYouXuan(Website):
         page = 1
         tbl_actor = WMYXActor()
         while True:
-            print(page)
             ret = self.parse_actor_list_page(page)
-            print(ret)
             for actor in ret['items']:
                 actor['price_dict'] = json.dumps(actor['price_dict'])
                 tbl_actor.insert(actor, replace=True)
@@ -196,20 +358,44 @@ class WMYXActor(BoseModel):
     tbl = "Tbl_WMYX_Actor"
 
 
+class YiXiaActor(BoseModel):
+    tbl = "Tbl_YiXia_Actor"
+
+
+class YiXiaVideo(BoseModel):
+    tbl = "Tbl_YiXia_Video"
+
+
+def spider_yixia_actor_videos():
+    yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()
+    y = YiXia()
+    for actor in yixia_actors:
+        uid = actor[0]
+        actor = y.parse_user_page(uid)
+        YiXiaActor().insert(actor, replace=True)
+        y.spider_videos(actor['suid'], actor['video_count'])
+
+
+def spider_womiyouxuan_actors():
+    WoMiYouXuan().spider_actors()
+
+
 def main(argv):
-    useage = 'Usage: python3 wanghong.py [spider_actors]'
+    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos]"
     if len(argv) < 2:
         print(useage)
         exit()
 
-    if argv[1] == 'spider_actors':
-        w = WoMiYouXuan()
-        w.spider_actors()
+    if argv[1] == 'spider_womiyouxuan_actors':
+        spider_womiyouxuan_actors()
+    elif argv[1] == 'spider_yixia_actor_videos':
+        spider_yixia_actor_videos()
     else:
         print(useage)
 
 if __name__ == '__main__':
     main(sys.argv)
+
 
 
 

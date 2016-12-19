@@ -5,7 +5,7 @@
 ```
 ### 访问主播页面，从该页面获取到suid和主播个人信息
 uid = 'paike_oq7pzk336s'
-ret = YiXia().parse_user_page()
+ret = YiXia().parse_user_page(uid)
 print(ret)
 """
 {'relayed': '4', 'avatar': 'http://tp2.sinaimg.cn/2714280233/180/5728135083/0', 'video_count': '140', 'suid': 'ZPWwDeYSvPUb23SL', 'uid': 'paike_oq7pzk336s', 'follow': '13', 'followed': '21031136', 'descr': '微信订阅：dapapi。微博：papi酱。', 'location': '北京 崇文区', 'nickname': 'papi酱', 'praised': '0'}

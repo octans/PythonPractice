@@ -422,7 +422,7 @@ class YiXiaVideo(BoseModel):
     tbl = "Tbl_YiXia_Video"
 
 
-def spider_yixia_actor_videos():
+def spider_yixia_videos():
     # yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()
     yixia_actors = YiXiaActor().select('uid').order_by('scraped_time desc').limit(100).fetch_all()
     y = YiXia()
@@ -446,7 +446,7 @@ def spider_yixia_follows():
 
 
 def main(argv):
-    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos|spider_yixia_follows|" \
+    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|" \
              "womiyouxuan_actors_count|" \
              "yixia_videos_count|yixia_actors_count]"
     if len(argv) < 2:
@@ -455,8 +455,8 @@ def main(argv):
 
     if argv[1] == 'spider_womiyouxuan_actors':
         spider_womiyouxuan_actors()
-    elif argv[1] == 'spider_yixia_actor_videos':
-        spider_yixia_actor_videos()
+    elif argv[1] == 'spider_yixia_videos':
+        spider_yixia_videos()
     elif argv[1] == 'spider_yixia_follows':
         spider_yixia_follows()
     elif argv[1] == 'womiyouxuan_actors_count':

@@ -3,6 +3,15 @@ CREATE DATABASE `wanghong` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4
 USE `wanghong`;
 set names utf8mb4;
 
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+    `id` INT UNSIGNED,
+    `name` VARCHAR(100),
+    `order` INT UNSIGNED,
+    PRIMARY KEY (`id`)
+);
+
 #DROP TABLE IF EXISTS `Tbl_Huajiao_Live`;
 CREATE TABLE `Tbl_Huajiao_Live` (
     `FLiveId` INT UNSIGNED NOT NULL,

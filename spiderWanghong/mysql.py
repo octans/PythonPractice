@@ -35,7 +35,10 @@ class Mysql():
 
 
 class Model:
-    sql = ''
+    def __init__(self, tbl, conn):
+        self.sql = ''
+        self.tbl = tbl
+        self.conn = conn
 
     def select(self, select_str):
         if select_str.find(",") == -1:
@@ -82,6 +85,7 @@ class Model:
 
         action = "INSERT" if replace is None else "REPLACE"
         sql = action + " INTO " + self.tbl + " (" + sqlFields + ") VALUES (" + sqlValues + ")"
+
         self.conn.query(sql).conn.commit()
 
     def update(self, where, **data):

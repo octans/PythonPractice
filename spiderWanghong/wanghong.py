@@ -86,6 +86,7 @@ class Website:
 
 
 class YiXia(Website):
+
     def parse_user_page(self, uid):
         """
         访问主播页面，也是视频列表页，从该页面获取到suid和主播个人信息
@@ -120,6 +121,47 @@ class YiXia(Website):
         user['praised'] = tmp[2]  # 被赞数
 
         return user
+
+    def get_follow_list(self, suid, page=1):
+        """
+        获取某用户的关注列表
+        页面地址：http://www.yixia.com/u/$uid/relation/follow.htm 瀑布流展示关注列表，
+        ajax接口地址：http://www.yixia.com/gu/follow?page=1&suid=$suid
+        """
+
+        print(self.__class__.__name__ + ':get_follow_list, suid=' + suid + ' page=' + str(page))
+
+        url = 'http://www.yixia.com/gu/follow'  # ajax接口
+        params = {
+            'page': page,
+            'suid': suid,
+        }
+        res = self.get_json(url, params)
+        if res['msg'] == '':
+            return list()
+
+        res = BeautifulSoup(res['msg'], 'html.parser')
+        boxs = res.findAll('div', {'class': 'box'})
+        users = list()
+        for box in boxs:
+            user = dict()
+            user['suid'] = suid
+            top = box.find('div', {'class': 'box_top'})
+            user['avatar'] = top.img.attrs['src']
+            user['uid'] = top.a.attrs['href']
+            user['uid'] =re.split('http://www.yixia.com/u/', user['uid'])
+            user['uid'] = user['uid'][1]
+            user['suid'] = top.div.h2.button.attrs['suid']
+            user['nickname'] = box.find('div', {'class': 'top_txt'}).a.get_text(strip=True)
+
+            center = box.find('div', {'class': 'box_center'}).get_text(strip=True)
+            center = re.split('视频|关注|粉丝', center)
+            user['video_count'] = center[0]  # 视频数
+            user['follow'] = center[1]  # 关注数
+            user['followed'] = center[2]  # 粉丝数
+            user['descr'] = box.find('p', {'class': 'box_bottom'}).b.get_text(strip=True)
+            users.append(user)
+        return users
 
     def get_video_list(self, suid, page=1):
         """
@@ -230,6 +272,20 @@ class YiXia(Website):
             current += len(videos)
             page += 1
         return True
+
+    def spider_follows(self, suid):
+        page = 1
+        tbl_user = YiXiaActor()
+        while True:
+            users = self.get_follow_list(suid, page)
+            if len(users) <= 0:
+                break;
+            for user in users:
+                tbl_user.insert(user, replace=True)
+            page += 1
+
+        return True
+
 
 
 class WoMiYouXuan(Website):
@@ -351,7 +407,8 @@ class WoMiYouXuan(Website):
 
 
 class BoseModel(Model):
-    conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
+    def __init__(self):
+        self.conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
 
 
 class WMYXActor(BoseModel):
@@ -380,8 +437,14 @@ def spider_womiyouxuan_actors():
     WoMiYouXuan().spider_actors()
 
 
+def spider_yixia_follows():
+    suids = YiXiaActor().select('suid').order_by('scraped_time desc, id desc').limit(20).fetch_all()
+    for suid in suids:
+        YiXia().spider_follows(suid[0])
+
+
 def main(argv):
-    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos]"
+    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos|spider_yixia_follows]"
     if len(argv) < 2:
         print(useage)
         exit()
@@ -390,11 +453,14 @@ def main(argv):
         spider_womiyouxuan_actors()
     elif argv[1] == 'spider_yixia_actor_videos':
         spider_yixia_actor_videos()
+    elif argv[1] == 'spider_yixia_follows':
+        spider_yixia_follows()
     else:
         print(useage)
 
 if __name__ == '__main__':
     main(sys.argv)
+
 
 
 

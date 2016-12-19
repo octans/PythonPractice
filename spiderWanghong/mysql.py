@@ -35,10 +35,7 @@ class Mysql():
 
 
 class Model:
-    def __init__(self, tbl, conn):
-        self.sql = ''
-        self.tbl = tbl
-        self.conn = conn
+    sql = ''
 
     def select(self, select_str):
         if select_str.find(",") == -1:

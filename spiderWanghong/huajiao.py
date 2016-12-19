@@ -124,9 +124,12 @@ def spiderUserLives():
     userIds = User().select("FUserId").limit(100).fetch_all()
     for userId in userIds:
         liveDatas = getUserLives(userId[0])
-        for liveData in liveDatas:
-            liveData['feed']['FUserId'] = userId[0]
-            replaceUserLive(liveData['feed'])
+        try:
+            for liveData in liveDatas:
+                liveData['feed']['FUserId'] = userId[0]
+                replaceUserLive(liveData['feed'])
+        except Exception as e:
+            print(e)
 
     return 1
 

@@ -82,7 +82,6 @@ class Model:
 
         action = "INSERT" if replace is None else "REPLACE"
         sql = action + " INTO " + self.tbl + " (" + sqlFields + ") VALUES (" + sqlValues + ")"
-
         self.conn.query(sql).conn.commit()
 
     def update(self, where, **data):

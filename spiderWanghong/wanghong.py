@@ -407,8 +407,7 @@ class WoMiYouXuan(Website):
 
 
 class BoseModel(Model):
-    def __init__(self):
-        self.conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
+    conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
 
 
 class WMYXActor(BoseModel):
@@ -439,6 +438,8 @@ def spider_womiyouxuan_actors():
 
 def spider_yixia_follows():
     suids = YiXiaActor().select('suid').order_by('scraped_time desc, id desc').limit(20).fetch_all()
+    if len(suids) <= 0:
+        suids = [{'ZPWwDeYSvPUb23SL'}]
     for suid in suids:
         YiXia().spider_follows(suid[0])
 

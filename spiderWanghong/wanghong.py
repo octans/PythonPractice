@@ -423,7 +423,8 @@ class YiXiaVideo(BoseModel):
 
 
 def spider_yixia_actor_videos():
-    yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()
+    # yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()
+    yixia_actors = YiXiaActor().select('uid').order_by('scraped_time desc').limit(100).fetch_all()
     y = YiXia()
     for actor in yixia_actors:
         uid = actor[0]
@@ -445,7 +446,9 @@ def spider_yixia_follows():
 
 
 def main(argv):
-    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos|spider_yixia_follows]"
+    useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_actor_videos|spider_yixia_follows|" \
+             "womiyouxuan_actors_count|" \
+             "yixia_videos_count|yixia_actors_count]"
     if len(argv) < 2:
         print(useage)
         exit()
@@ -456,6 +459,15 @@ def main(argv):
         spider_yixia_actor_videos()
     elif argv[1] == 'spider_yixia_follows':
         spider_yixia_follows()
+    elif argv[1] == 'womiyouxuan_actors_count':
+        count = WMYXActor().select("count(\"id\")").fetch_one()
+        print(count[0])
+    elif argv[1] == 'yixia_videos_count':
+        count = YiXiaVideo().select("count(\"id\")").fetch_one()
+        print(count[0])
+    elif argv[1] == 'yixia_actors_count':
+        count = YiXiaActor().select("count(\"id\")").fetch_one()
+        print(count[0])
     else:
         print(useage)
 

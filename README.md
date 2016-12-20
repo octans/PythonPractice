@@ -1,4 +1,26 @@
 # PythonPractice
+
+### 使用说明
+* 1. 使用db.sql建立mysql数据库
+* 2. 在wanghong.py的BoseModel定义里设置mysql的连接参数
+* 3. 安装python库pymysql, requests, BeautifulSoup
+* 4. 运行以下命令, 会提示支持的操作
+```
+# python3 wanghong.py
+Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|womiyouxuan_actors_count|yixia_videos_count|yixia_actors_count]
+```
+* 5. 运行某一个命令，比如：
+```
+# python3 wanghong.py spider_yixia_follows
+```
+| 命令       | 含义          | 逻辑  |
+| :------------- |:-------------|:-----|
+| spider_womiyouxuan_actors      | 爬取沃米优选的主播信息 | 遍历每个分页并将主播信息写入数据表Tbl_WMYX_Actor |
+| spider_yixia_videos      | 爬取一下网的视频     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播的视频数据，写入数据表Tbl_YiXia_Video |
+| spider_yixia_follows | 爬取一下网的主播     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播关注的人的数据，写入数据表Tbl_YiXia_Actor |
+|yixia_videos_count|查看爬取的一下网视频总数|
+|yixia_actors_count|查看爬取的一下网主播总数|
+
 ### 已实现对以下直播类网站的数据爬取:
 * 花椒(http://www.huajiao.com/)
 * 一下(http://www.yixia.com/u/paike_oq7pzk336s)

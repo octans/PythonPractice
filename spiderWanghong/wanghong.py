@@ -407,7 +407,7 @@ class WoMiYouXuan(Website):
 
 
 class BoseModel(Model):
-    conn = Mysql(host='127.0.0.1', unix_socket='/tmp/mysql.sock', user='root', passwd='123456', db='wanghong', charset='utf8')
+    conn = Mysql(host='127.0.0.1', user='root', passwd='123456', db='wanghong', charset='utf8')
 
 
 class WMYXActor(BoseModel):
@@ -444,7 +444,6 @@ def spider_yixia_follows():
     for suid in suids:
         YiXia().spider_follows(suid[0])
 
-
 def main(argv):
     useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|" \
              "womiyouxuan_actors_count|" \
@@ -473,7 +472,6 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
-
 
 
 

@@ -1,10 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-import os
 import re
 import json
 import sys
-import inspect
+import time
 from mysql import Model
 from mysql import Mysql
 
@@ -31,6 +30,11 @@ class Cache():
         if self.fileObj != '':
             self.fileObj.close()
 """
+
+
+def get_current_time():
+
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 
 class Website:
@@ -92,7 +96,7 @@ class YiXia(Website):
         访问主播页面，也是视频列表页，从该页面获取到suid和主播个人信息
         """
 
-        print(self.__class__.__name__ + ':parse_user_page, uid=' + uid)
+        print(get_current_time() + ':' + self.__class__.__name__ + ':parse_user_page, uid=' + uid)
         user = dict()
         user['uid'] = uid
         url = 'http://www.yixia.com/u/' + uid
@@ -129,7 +133,7 @@ class YiXia(Website):
         ajax接口地址：http://www.yixia.com/gu/follow?page=1&suid=$suid
         """
 
-        print(self.__class__.__name__ + ':get_follow_list, suid=' + suid + ' page=' + str(page))
+        print(get_current_time() + ':' + self.__class__.__name__ + ':get_follow_list, suid=' + suid + ' page=' + str(page))
 
         url = 'http://www.yixia.com/gu/follow'  # ajax接口
         params = {
@@ -265,7 +269,7 @@ class YiXia(Website):
         current = 0
         tbl_video = YiXiaVideo()
         while current < int(video_count):
-            print('spider_videos: suid=' + suid + ', page=' + str(page))
+            print(get_current_time() + ':' + 'spider_videos: suid=' + suid + ', page=' + str(page))
             videos = self.get_video_list(suid, page)
             for video in videos:
                 tbl_video.insert(video, replace=True)
@@ -455,9 +459,13 @@ def main(argv):
     if argv[1] == 'spider_womiyouxuan_actors':
         spider_womiyouxuan_actors()
     elif argv[1] == 'spider_yixia_videos':
+        print(get_current_time() + ':' + 'spider_yixia_videos start')
         spider_yixia_videos()
+        print(get_current_time() + ':' + 'spider_yixia_videos end')
     elif argv[1] == 'spider_yixia_follows':
+        print(get_current_time() + ':' + 'spider_yixia_follows start')
         spider_yixia_follows()
+        print(get_current_time() + ':' + 'spider_yixia_follows end')
     elif argv[1] == 'womiyouxuan_actors_count':
         count = WMYXActor().select("count(\"id\")").fetch_one()
         print(count[0])

@@ -92,6 +92,6 @@ class Model:
     def update(self, where, **data):
         pass
 
-    def delete(self, where):
+    def delete(self, where='1'):
         sql = "DELETE FROM " + self.tbl + " WHERE " + where
-        Mysql().query(sql).conn.commit()
+        self.conn.query(sql).conn.commit()

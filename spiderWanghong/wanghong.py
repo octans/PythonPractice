@@ -431,6 +431,8 @@ class Actor(BoseModel):
 
 
 def agg_actors():
+    Actor().delete()
+
     # 一下网
     actors = YiXiaActor().select('uid, nickname, follow, followed, praised, avatar, 2 as pid')\
         .order_by('followed desc').limit(500).fetch_all(is_dict=1)
@@ -449,10 +451,6 @@ def agg_actors():
             Actor().insert(actor)
     except Exception as e:
         print(e)
-
-
-
-
 
 def spider_yixia_videos():
     # yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()

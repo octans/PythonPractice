@@ -256,10 +256,7 @@ class YiXia(Website):
                 video['praised'] = format_num(stats[k][1])  # 赞
                 video['discussed'] = format_num((stats[k][2]))  # 评论
             except ValueError as e:
-                print(head_area)
                 print(e)
-                print(video)
-                exit()
             videos.append(video)
 
         return videos

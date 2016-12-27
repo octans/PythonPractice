@@ -29,7 +29,9 @@ class Mysql():
         cls.conn.close()
 
     @classmethod
-    def query(cls, sql):
+    def query(cls, sql, is_dict=0):
+        if is_dict:
+            cls.cursor = cls.conn.cursor(pymysql.cursors.DictCursor)
         cls.cursor.execute(sql)
         return cls
 
@@ -43,10 +45,13 @@ class Model:
         else:
             fields = list()
             for f in select_str.split(","):
-                fields.append('`' + f.strip() + '`')
+                if f.find('as') > 0:
+                    p = f.split(" as ")
+                    fields.append(p[0].strip() + ' as `' + p[1].strip() + '`')
+                else:
+                    fields.append('`' + f.strip() + '`')
                 select_str = ",".join(fields)
         self.sql = "SELECT " + select_str + " FROM " + self.tbl
-
         return self
 
     def where(self, string):
@@ -61,8 +66,8 @@ class Model:
         self.sql = self.sql + " LIMIT " + str(num)
         return self
 
-    def fetch_all(self):
-        return self.conn.query(self.sql).cursor.fetchall()
+    def fetch_all(self, is_dict=0):
+            return self.conn.query(self.sql, is_dict).cursor.fetchall()
 
     def fetch_one(self):
         return self.conn.query(self.sql).cursor.fetchone()

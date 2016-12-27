@@ -423,6 +423,36 @@ class YiXiaActor(BoseModel):
 class YiXiaVideo(BoseModel):
     tbl = "Tbl_YiXia_Video"
 
+class HuaJiaoActor(BoseModel):
+    tbl = "Tbl_Huajiao_User"
+
+class Actor(BoseModel):
+    tbl = "Tbl_Actor"
+
+
+def agg_actors():
+    # 一下网
+    actors = YiXiaActor().select('uid, nickname, follow, followed, praised, avatar, 2 as pid')\
+        .order_by('followed desc').limit(500).fetch_all(is_dict=1)
+    try:
+        for actor in actors:
+            Actor().insert(actor)
+    except Exception as e:
+        print(e)
+
+    # 花椒网
+    actors = HuaJiaoActor().select('FUserId as uid, FUserName as nickname, FFollow as follow, FFollowed as followed,\
+                                   FSupported as praised, FAvatar as avatar, 1 as pid').order_by('FFollowed')\
+        .limit(500).fetch_all(is_dict=1)
+    try:
+        for actor in actors:
+            Actor().insert(actor)
+    except Exception as e:
+        print(e)
+
+
+
+
 
 def spider_yixia_videos():
     # yixia_actors = WMYXActor().select('user_id').where('platform=5').order_by('scraped_time desc').fetch_all()
@@ -449,7 +479,8 @@ def spider_yixia_follows():
 def main(argv):
     useage = "Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|" \
              "womiyouxuan_actors_count|" \
-             "yixia_videos_count|yixia_actors_count]"
+             "yixia_videos_count|yixia_actors_count" \
+             "|agg_actors]"
     if len(argv) < 2:
         print(useage)
         exit()
@@ -473,6 +504,8 @@ def main(argv):
     elif argv[1] == 'yixia_actors_count':
         count = YiXiaActor().select("count(\"id\")").fetch_one()
         print(count[0])
+    elif argv[1] == 'agg_actors':
+        agg_actors()
     else:
         print(useage)
 

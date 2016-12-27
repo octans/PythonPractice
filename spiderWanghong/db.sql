@@ -42,6 +42,23 @@ CREATE TABLE `Tbl_Huajiao_User` (
     PRIMARY KEY (`FUserId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+## 主播汇总表
+#DROP TABLE IF EXISTS `Tbl_Actor`;
+CREATE TABLE `Tbl_Actor` (
+    `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uid` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '唯一标识用户',
+    `nickname` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '昵称',
+    `follow` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '关注数',
+    `followed` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '粉丝数',
+    `praised` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '被赞数',
+    `avatar` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '头像',
+    `pid` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '平台id, 1-花椒，2-一下',
+    `scraped_time` timestamp NOT NULL COMMENT '爬虫更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `INDEX_uid_pid` (`uid`, `pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 # 沃米优选主播表
 #DROP TABLE IF EXISTS `Tbl_WMYX_Actor`;
 CREATE TABLE `Tbl_WMYX_Actor` (
@@ -102,5 +119,8 @@ CREATE TABLE `Tbl_YiXia_Video` (
     PRIMARY KEY (`id`),
     UNIQUE INDEX `INDEX_scid` (`scid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
 
 

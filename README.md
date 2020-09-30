@@ -1,5 +1,5 @@
 # PythonPractice
-
+***Chinese***
 ### 使用说明
 * 1. 使用db.sql建立mysql数据库
 * 2. 在wanghong.py的BoseModel定义里设置mysql的连接参数
@@ -61,3 +61,25 @@ print(ret)
 ### 代码逻辑请参考以下文章：
 #####[Python初学者之网络爬虫](http://mp.weixin.qq.com/s/vNcQtXWjGHnc6JMjt_vWiQ "Python初学者之网络爬虫")
 #####[Python初学者之网络爬虫(二)](http://mp.weixin.qq.com/s/WoLKDnaFBcJ-u3msAqtDNw "Python初学者之网络爬虫(二)")
+***English translation***
+### Instructions for use
+** 1. Use db.sql to create a mysql database 67
+* 2. Set mysql connection parameters in the BoseModel definition of wanghong.py 68
+* 3. Install python libraries pymysql, requests, BeautifulSoup 69
+* * 4. Run the following command, you will be prompted for supported operations
+```
+# python3 wanghong.py
+Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|womiyouxuan_actors_count|yixia_videos_count|yixia_actors_count]
+```
+*5. Run a certain command, such as:
+```
+# python3 wanghong.py spider_yixia_follows
+```
+| command       | meaning          | logic  |
+| :------------- |:-------------|:-----|
+| spider_womiyouxuan_actors      | Crawl Womi's preferred anchor information
+ | 遍历每个分页并将主播信息写入数据表Tbl_WMYX_Actor |
+| spider_yixia_videos      | 爬取一下网的视频     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播的视频数据，写入数据表Tbl_YiXia_Video |
+| spider_yixia_follows | 爬取一下网的主播     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播关注的人的数据，写入数据表Tbl_YiXia_Actor |
+|yixia_videos_count|查看爬取的一下网视频总数|
+|yixia_actors_count|查看爬取的一下网主播总数|

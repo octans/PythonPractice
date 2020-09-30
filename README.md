@@ -3,7 +3,7 @@
 ### 使用说明
 * 1. 使用db.sql建立mysql数据库
 * 2. 在wanghong.py的BoseModel定义里设置mysql的连接参数
-* 3. 安装python库pymysql, requests, BeautifulSoup
+* 3. 安装python库pymysql, requests, BeautifulSoup.
 * 4. 运行以下命令, 会提示支持的操作
 ```
 # python3 wanghong.py
@@ -11,7 +11,7 @@ Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider
 ```
 * 5. 运行某一个命令，比如：
 ```
-# python3 wanghong.py spider_yixia_follows
+# python3 wanghong.py spider_yixia_follows.
 ```
 | 命令       | 含义          | 逻辑  |
 | :------------- |:-------------|:-----|

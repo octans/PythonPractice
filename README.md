@@ -12,6 +12,7 @@ Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider
 * 5. 运行某一个命令，比如：
 ```
 # python3 wanghong.py spider_yixia_follows
+Download python 3 from here : https://www.python.org/downloads/windows/
 ```
 | 命令       | 含义          | 逻辑  |
 | :------------- |:-------------|:-----|

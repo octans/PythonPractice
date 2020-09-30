@@ -1,4 +1,5 @@
 # PythonPractice
+You need to install python3.8 onwards now in 2020
 
 ### 使用说明
 * 1. 使用db.sql建立mysql数据库

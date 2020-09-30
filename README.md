@@ -61,7 +61,9 @@ print(ret)
 ### 代码逻辑请参考以下文章：
 #####[Python初学者之网络爬虫](http://mp.weixin.qq.com/s/vNcQtXWjGHnc6JMjt_vWiQ "Python初学者之网络爬虫")
 #####[Python初学者之网络爬虫(二)](http://mp.weixin.qq.com/s/WoLKDnaFBcJ-u3msAqtDNw "Python初学者之网络爬虫(二)")
+
 ***English translation***
+
 ### Instructions for use
 * 1. Use db.sql to create a mysql database 67
 * 2. Set mysql connection parameters in the BoseModel definition of wanghong.py 68
@@ -78,8 +80,32 @@ Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider
 | command       | meaning          | logic  |
 | :------------- |:-------------|:-----|
 | spider_womiyouxuan_actors      | Crawl Womi's preferred anchor information
- | 遍历每个分页并将主播信息写入数据表Tbl_WMYX_Actor |
-| spider_yixia_videos      | 爬取一下网的视频     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播的视频数据，写入数据表Tbl_YiXia_Video |
-| spider_yixia_follows | 爬取一下网的主播     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播关注的人的数据，写入数据表Tbl_YiXia_Actor |
-|yixia_videos_count|查看爬取的一下网视频总数|
-|yixia_actors_count|查看爬取的一下网主播总数|
+ | Traverse each page and write the anchor information into the data table Tbl_WMYX_Actor |
+| spider_yixia_videos      | Crawl the video of the web
+     |  Retrieve the latest crawled anchor data from the database
+，And then crawl the video data of each anchor
+，Write to data table Tbl_YiXia_Video
+ |
+| spider_yixia_follows | Crawl the web anchor
+     |  Retrieve the latest crawled anchor data from the database
+，Then crawl the data of the people that each anchor follows
+，Write to data table Tbl_YiXia_Actor
+ |
+|yixia_videos_count|View the total number of crawled videos
+|
+|yixia_actors_count|View the total number of webcasters crawled
+|
+
+### Data crawling of the following live streaming websites has been implemented
+:
+* Pepper(http://www.huajiao.com/)
+* a bit(http://www.yixia.com/u/paike_oq7pzk336s)
+```
+### Visit the host page
+，Get the personal information of suid and anchor from this page
+uid = 'paike_oq7pzk336s'
+ret = YiXia().parse_user_page(uid)
+print(ret)
+"""
+{'relayed': '4', 'avatar': 'http://tp2.sinaimg.cn/2714280233/180/5728135083/0', 'video_count': '140', 'suid': 'ZPWwDeYSvPUb23SL', 'uid': 'paike_oq7pzk336s', 'follow': '13', 'followed': '21031136', 'descr': 'WeChat subscription：dapapi。Weibo：papi sauce。', 'location': 'Beijing Chongwen District', 'nickname': 'papi sauce', 'praised': '0'}
+"""

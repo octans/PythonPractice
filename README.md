@@ -63,10 +63,10 @@ print(ret)
 #####[Python初学者之网络爬虫(二)](http://mp.weixin.qq.com/s/WoLKDnaFBcJ-u3msAqtDNw "Python初学者之网络爬虫(二)")
 ***English translation***
 ### Instructions for use
-** 1. Use db.sql to create a mysql database 67
+* 1. Use db.sql to create a mysql database 67
 * 2. Set mysql connection parameters in the BoseModel definition of wanghong.py 68
 * 3. Install python libraries pymysql, requests, BeautifulSoup 69
-* * 4. Run the following command, you will be prompted for supported operations
+* 4. Run the following command, you will be prompted for supported operations
 ```
 # python3 wanghong.py
 Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|womiyouxuan_actors_count|yixia_videos_count|yixia_actors_count]

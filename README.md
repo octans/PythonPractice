@@ -1,4 +1,4 @@
-# PythonPractice
+# Python Practice Program
 
 ### 使用说明
 * 1. 使用db.sql建立mysql数据库
@@ -53,7 +53,7 @@ print(ret)
 ```
 * 沃米优选(http://video.51wom.com/)
 
-### TODO:
+### TO DO:
 * 映客(http://www.inke.cn/hotlive_list.html)
 * 斗鱼(https://www.douyu.com/)
 * 微信公众号

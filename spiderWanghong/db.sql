@@ -3,7 +3,7 @@ CREATE DATABASE `wanghong` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4
 USE `wanghong`;
 set names utf8mb4;
 
-
+#sql functions
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
     `id` INT UNSIGNED,

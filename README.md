@@ -1,4 +1,5 @@
 # PythonPractice
+**use google translator if unable to understand th code**
 
 ### 使用说明
 * 1. 使用db.sql建立mysql数据库

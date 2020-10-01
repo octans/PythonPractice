@@ -53,7 +53,7 @@ print(ret)
 ```
 * 沃米优选(http://video.51wom.com/)
 
-### TODO:
+### TODO(FYI):
 * 映客(http://www.inke.cn/hotlive_list.html)
 * 斗鱼(https://www.douyu.com/)
 * 微信公众号

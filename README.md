@@ -61,3 +61,4 @@ print(ret)
 ### 代码逻辑请参考以下文章：
 #####[Python初学者之网络爬虫](http://mp.weixin.qq.com/s/vNcQtXWjGHnc6JMjt_vWiQ "Python初学者之网络爬虫")
 #####[Python初学者之网络爬虫(二)](http://mp.weixin.qq.com/s/WoLKDnaFBcJ-u3msAqtDNw "Python初学者之网络爬虫(二)")
+* These files and scripts are not intended for malicious purposes

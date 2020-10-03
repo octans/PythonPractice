@@ -6,11 +6,14 @@
 * 3. 安装python库pymysql, requests, BeautifulSoup
 * 4. 运行以下命令, 会提示支持的操作
 ```
+---
+
 # python3 wanghong.py
 Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider_yixia_follows|womiyouxuan_actors_count|yixia_videos_count|yixia_actors_count]
 ```
 * 5. 运行某一个命令，比如：
 ```
+---
 # python3 wanghong.py spider_yixia_follows
 ```
 | 命令       | 含义          | 逻辑  |
@@ -20,7 +23,7 @@ Usage: python3 wanghong.py [spider_womiyouxuan_actors|spider_yixia_videos|spider
 | spider_yixia_follows | 爬取一下网的主播     |  从数据库中取出最新爬取的主播数据，进而爬取每个主播关注的人的数据，写入数据表Tbl_YiXia_Actor |
 |yixia_videos_count|查看爬取的一下网视频总数|
 |yixia_actors_count|查看爬取的一下网主播总数|
-
+---
 ### 已实现对以下直播类网站的数据爬取:
 * 花椒(http://www.huajiao.com/)
 * 一下(http://www.yixia.com/u/paike_oq7pzk336s)
@@ -32,7 +35,7 @@ print(ret)
 """
 {'relayed': '4', 'avatar': 'http://tp2.sinaimg.cn/2714280233/180/5728135083/0', 'video_count': '140', 'suid': 'ZPWwDeYSvPUb23SL', 'uid': 'paike_oq7pzk336s', 'follow': '13', 'followed': '21031136', 'descr': '微信订阅：dapapi。微博：papi酱。', 'location': '北京 崇文区', 'nickname': 'papi酱', 'praised': '0'}
 """
-
+---
 ### 获取某用户的关注列表
 suid = 'ZPWwDeYSvPUb23SL'
 page = 1
@@ -41,7 +44,7 @@ print(ret)
 """
 [{'followed': '169054', 'nickname': 'lyxp', 'follow': '3', 'descr': 'ta很懒什么都没有留下', 'uid': 'wxsso_nz297durpu', 'avatar': 'http://wx.qlogo.cn/mmopen/gobtgL6xn9Z6KMsibqkqWeOa8Npickk1XKUbrwIWASjw40vdNWUT74PxVIdFe8FmAQu80Yq01rx4WL74rULianT2iaSz5PKgAedH/0', 'suid': '64tfU0JCV~O2YyFVR7sRGw__', 'video_count': '11'}, {'followed': '6827071', 'nickname': '最神奇的视频', 'follow': '11', 'descr': '搞笑，预告，你的喜怒哀乐这里都能看到，通过视频，让你感', 'uid': 'sina_0udpfn0a2h', 'avatar': 'http://tp4.sinaimg.cn/2141823055/180/5621846443/0', 'suid': 'lfMtGJsFJMlMhYm2', 'video_count': '3455'}, {'followed': '352', 'nickname': '扬名止过', 'follow': '14', 'descr': '波澜不惊，荣辱不争。', 'uid': 'paike_8iqcuo8pko', 'avatar': 'http://tp2.sinaimg.cn/1583429645/180/5621703354/1', 'suid': 'gn2U51iUx4PT6k8-', 'video_count': '0'}, {'followed': '499', 'nickname': '段蓓珊', 'follow': '13', 'descr': '……', 'uid': 'paike_c4i54d6ey2', 'avatar': 'http://tp2.sinaimg.cn/1670302465/180/5632141584/0', 'suid': '1Kev5Dmc1H7SMMnX', 'video_count': '1'}, {'followed': '145', 'nickname': '胖大星Alis', 'follow': '0', 'descr': 'ta很懒什么都没有留下', 'uid': 'paike_76o4l8zotz', 'avatar': 'http://tp3.sinaimg.cn/1760582170/180/5709471341/0', 'suid': 'epu~2vdSHF23E0Q-', 'video_count': '1'}, {'followed': '295', 'nickname': '文史_海巴子', 'follow': '0', 'descr': 'ta很懒什么都没有留下', 'uid': 'paike_7bnuhrz12h', 'avatar': 'http://tp2.sinaimg.cn/2624069177/180/5634691164/1', 'suid': 'CGTQC2jMVAA4Me26', 'video_count': '0'}, {'followed': '5880191', 'nickname': '英国那些事儿', 'follow': '45', 'descr': '一个在英国爱吐槽的主页君.没事爱分享英国最搞最有意思大', 'uid': 'paike_t9y36wkt4c', 'avatar': 'http://tp3.sinaimg.cn/2549228714/180/40021372518/1', 'suid': 'Ii9QcPCa~novHdgc', 'video_count': '744'}, {'followed': '12312', 'nickname': '每天搞笑排行榜', 'follow': '6', 'descr': 'ta很懒什么都没有留下', 'uid': 'paike_oqbmsp87kq', 'avatar': 'http://tp3.sinaimg.cn/2281122894/180/5661656420/0', 'suid': 'PQX0xTUI4fgV~s3v', 'video_count': '0'}, {'followed': '3414317', 'nickname': '史上第一最最搞', 'follow': '7', 'descr': 'ta很懒什么都没有留下', 'uid': 'paike_pomohtzbiw', 'avatar': 'http://tp1.sinaimg.cn/1134796120/180/40069206893/0', 'suid': '3Xlno6tiKcXS6noq', 'video_count': '5000'}, {'followed': '63631', 'nickname': '霍泥芳', 'follow': '8', 'descr': '＜夏天有风吹过＞里，我是内向叛逆的半夏；＜幸福生活在招', 'uid': 'paike_4kf51dy2de', 'avatar': 'http://tp1.sinaimg.cn/1277126544/180/5641596294/0', 'suid': 'yVwNg6clktoWe-Ib', 'video_count': '10'}, {'followed': '20308', 'nickname': 'M大王叫我来巡', 'follow': '0', 'descr': 'ta很懒什么都没有留下', 'uid': 'paike_rx2xp66tks', 'avatar': 'http://tp4.sinaimg.cn/1720173771/180/40048639291/1', 'suid': 'tJ2tClKrqCYm6uDc', 'video_count': '26'}, {'followed': '7195252', 'nickname': 'gogoboi', 'follow': '12', 'descr': '冒着脑残的炮火前进，前进，前进进！工作联系：gogob', 'uid': 'paike_bg95tflssd', 'avatar': 'http://tp2.sinaimg.cn/1706372681/180/40017354355/1', 'suid': 's5u1-93x2yMZx6NM', 'video_count': '20'}, {'followed': '8929355', 'nickname': '秒拍', 'follow': '659', 'descr': '秒拍-10秒拍大片！', 'uid': 'paike_i1dudsh696', 'avatar': 'http://dynimg3.yixia.com/square.124/storage.video.sina.com.cn/user-icon/EfFEP4pOsmYCl0Nf_480__1438164133711.jpg', 'suid': 'EfFEP4pOsmYCl0Nf', 'video_count': '622'}]
 """
-
+---
 ### 获取某用户的视频列表
 suid = 'ZPWwDeYSvPUb23SL'
 page = 1

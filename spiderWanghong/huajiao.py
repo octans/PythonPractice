@@ -147,7 +147,7 @@ class Live(BoseModel):
 
 
 def main(argv):
-    if len(argv) < 2:
+    if len(argv) <= 2:
         print("Usage: python3 huajiao.py [spiderUserDatas|spiderUserLives]")
         exit()
     if argv[1] == 'spiderUserDatas':

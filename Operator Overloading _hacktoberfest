@@ -1,0 +1,21 @@
+#hacktoberfest
+#https://www.facebook.com/surender.hacker/
+
+class student:
+	def __init__(self,python,hacking):
+		self.python = python
+		self.hacking = hacking
+		
+	def __gt__(obj1, obj2):
+		x = obj1.python + obj2.python
+		y = obj1.hacking + obj2.hacking
+		z = student(x,y)
+		return z
+		
+		
+s1 = student(80,75)
+s2 = student(60,85)
+
+s3 = s1>s2
+
+print(s3.hacking)
